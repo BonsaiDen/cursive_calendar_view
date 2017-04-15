@@ -1,0 +1,26 @@
+[package]
+name = "cursive_calendar_view"
+version = "0.1.0"
+authors = ["Ivo Wetzel <ivo.wetzel@googlemail.com>"]
+description = "A basic calendar view implementation for cursive."
+repository = "https://github.com/BonsaiDen/cursive_calendar_view.git"
+readme = "README.md"
+keywords = ["cursive", "ncurses", "TUI", "UI", "calendar"]
+categories = ["command-line-interface", "gui"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+cursive = { version = "0.5", default-features = false }
+chrono = "0.3.0"
+
+[features]
+default = ["ncurses-backend"]
+ncurses-backend = ["cursive/ncurses-backend"]
+pancurses-backend = ["cursive/pancurses-backend"]
+termion-backend = ["cursive/termion-backend"]
+blt-backend = ["cursive/blt-backend"]
+
+[dev-dependencies]
+rand = "0.3.15"
+lazy_static = "0.2.8"
+
