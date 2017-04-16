@@ -10,6 +10,7 @@
 
 A basic calendar view implementation for [cursive](https://crates.io/crates/cursive).
 
+![Month View](https://cloud.githubusercontent.com/assets/124674/25067601/b4f39c9e-2248-11e7-8bea-5d1a1c7669ac.png) ![Year View](https://cloud.githubusercontent.com/assets/124674/25067602/b6233084-2248-11e7-81e1-c7874b2c3d7c.png) ![Decade View](https://cloud.githubusercontent.com/assets/124674/25067604/c10f8bc8-2248-11e7-9c1c-f8a1b9fdff8c.png)
 
 ## Usage
 
