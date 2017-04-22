@@ -270,7 +270,15 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
 
     /// Sets and limits the earliest date selectable by this view.
     pub fn set_earliest_date(&mut self, date: Option<Date<T>>) {
+
         self.earliest_date = date;
+
+        if let Some(ref date) = self.earliest_date {
+            if self.date < *date {
+                self.date = date.clone();
+            }
+        }
+
     }
 
     /// Sets and limits the earliest date selectable by this view.
@@ -282,7 +290,15 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
 
     /// Sets and limits the latest date selectable by this view.
     pub fn set_latest_date(&mut self, date: Option<Date<T>>) {
+
         self.latest_date = date;
+
+        if let Some(ref date) = self.latest_date {
+            if self.date > *date {
+                self.date = date.clone();
+            }
+        }
+
     }
 
     /// Sets and limits the latest date selectable by this view.
