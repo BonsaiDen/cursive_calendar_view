@@ -103,7 +103,7 @@ pub struct CalendarView<T: TimeZone, L: Locale> {
 
 }
 
-impl<T: TimeZone, L: Locale> CalendarView<T, L> {
+impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     /// Creates new `CalendarView`.
     pub fn new(today: Date<T>) -> Self {
@@ -372,7 +372,7 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
 
 }
 
-impl<T: TimeZone, L: Locale> CalendarView<T, L> {
+impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     fn draw_month(&self, printer: &Printer) {
 
@@ -436,52 +436,52 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
             ) {
 
                 let color = if !self.date_available(&exact_date) {
-                    ColorStyle::Tertiary
+                    ColorStyle::tertiary()
 
                 } else if i < 0 {
                     if active_day == prev_month_days + i && d_month == -1 && d_year == 0 {
                         if self.enabled && printer.focused {
-                            ColorStyle::HighlightInactive
+                            ColorStyle::highlight_inactive()
 
                         } else {
-                            ColorStyle::Secondary
+                            ColorStyle::secondary()
                         }
 
                     } else {
-                        ColorStyle::Secondary
+                        ColorStyle::secondary()
                     }
 
                 } else if i > month_days - 1 {
                     if active_day == i - month_days && d_month == 1 && d_year == 0 {
                         if self.enabled && printer.focused {
-                            ColorStyle::HighlightInactive
+                            ColorStyle::highlight_inactive()
 
                         } else {
-                            ColorStyle::Secondary
+                            ColorStyle::secondary()
                         }
 
                     } else {
-                        ColorStyle::Secondary
+                        ColorStyle::secondary()
                     }
 
                 } else if view_day == i {
                     if self.enabled && printer.focused {
-                        ColorStyle::Highlight
+                        ColorStyle::highlight()
 
                     } else {
-                        ColorStyle::HighlightInactive
+                        ColorStyle::highlight_inactive()
                     }
 
                 } else if active_day == i && d_month == 0 && d_year == 0 {
                     if self.enabled {
-                        ColorStyle::HighlightInactive
+                        ColorStyle::highlight_inactive()
 
                     } else {
-                        ColorStyle::Primary
+                        ColorStyle::primary()
                     }
 
                 } else {
-                    ColorStyle::Primary
+                    ColorStyle::primary()
                 };
 
                 // Draw day number
@@ -493,7 +493,7 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
                 // Draw ISO Weeks (Only makes sense when start_of_week is Monday)
                 if self.show_iso_weeks && index as i32 % 7 == 0 {
                     let (_, iso_week, _) = exact_date.isoweekdate();
-                    printer.with_color(ColorStyle::TitleSecondary, |printer| {
+                    printer.with_color(ColorStyle::title_secondary(), |printer| {
                         printer.print((0, y), &format!("{:>2}", iso_week));
                     });
                 }
@@ -526,26 +526,26 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
         for i in 0..12 {
 
             let color = if !self.month_available(i, year) {
-                ColorStyle::Tertiary
+                ColorStyle::tertiary()
 
             } else if view_month == i {
                 if self.enabled && printer.focused {
-                    ColorStyle::Highlight
+                    ColorStyle::highlight()
 
                 } else {
-                    ColorStyle::HighlightInactive
+                    ColorStyle::highlight_inactive()
                 }
 
             } else if active_month == i && d_year == 0 {
                 if self.enabled && printer.focused {
-                    ColorStyle::HighlightInactive
+                    ColorStyle::highlight_inactive()
 
                 } else {
-                    ColorStyle::Primary
+                    ColorStyle::primary()
                 }
 
             } else {
-                ColorStyle::Primary
+                ColorStyle::primary()
             };
 
             let (x, y) = (h_offset + (i as i32 % 4) * 5, 2 + (i as i32 / 4) * 2);
@@ -584,39 +584,39 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
 
             let year = decade + i;
             let color = if !self.year_available(year) {
-                ColorStyle::Tertiary
+                ColorStyle::tertiary()
 
             } else if i < 0 || i > 9 {
                 if active_year == year {
                     if self.enabled && printer.focused {
-                        ColorStyle::HighlightInactive
+                        ColorStyle::highlight_inactive()
 
                     } else {
-                        ColorStyle::Secondary
+                        ColorStyle::secondary()
                     }
 
                 } else {
-                    ColorStyle::Secondary
+                    ColorStyle::secondary()
                 }
 
             } else if view_year == year {
                 if self.enabled && printer.focused {
-                    ColorStyle::Highlight
+                    ColorStyle::highlight()
 
                 } else {
-                    ColorStyle::HighlightInactive
+                    ColorStyle::highlight_inactive()
                 }
 
             } else if active_year == year {
                 if self.enabled {
-                    ColorStyle::HighlightInactive
+                    ColorStyle::highlight_inactive()
 
                 } else {
-                    ColorStyle::Primary
+                    ColorStyle::primary()
                 }
 
             } else {
-                ColorStyle::Primary
+                ColorStyle::primary()
             };
 
             let (x, y) = (
@@ -695,7 +695,7 @@ impl<T: TimeZone, L: Locale> CalendarView<T, L> {
 
 }
 
-impl<T: TimeZone + 'static, L: Locale> View for CalendarView<T, L> {
+impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
 
     fn draw(&self, printer: &Printer) {
         match self.view_mode {
