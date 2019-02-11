@@ -5,8 +5,8 @@
 
 [cratesio-image]: https://img.shields.io/crates/v/cursive_calendar_view.svg
 [cratesio]: https://crates.io/crates/cursive_calendar_view
-[docsrs-image]: https://docs.rs/cursive_calendar_view/badge.svg?version=0.2.2
-[docsrs]: https://docs.rs/cursive_calendar_view/0.2.2/
+[docsrs-image]: https://docs.rs/cursive_calendar_view/badge.svg
+[docsrs]: https://docs.rs/cursive_calendar_view/
 
 A basic calendar view implementation for [cursive](https://crates.io/crates/cursive).
 
@@ -18,7 +18,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cursive_calendar_view = "0.2.2"
+cursive_calendar_view = "0.3"
 ```
 
 and this to your crate root:
@@ -34,12 +34,12 @@ the identical features to your `cursive_calendar_view` dependency:
 
 ```toml
 [dependencies.cursive]
-version = "0.8"
+version = "0.10"
 default-features = false
 features = ["blt-backend"]
 
 [dependencies.cursive_calendar_view]
-version = "0.2.2"
+version = "0.3"
 default-features = false
 features = ["blt-backend"]
 ```
