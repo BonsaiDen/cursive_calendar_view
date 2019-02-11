@@ -1,5 +1,5 @@
 /// Enumeration of all months in a year.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Month {
     /// The month of January.
     January,
@@ -29,14 +29,14 @@ pub enum Month {
 
 impl Month {
     #[doc(hidden)]
-    pub fn prev(&self) -> Self {
+    pub fn prev(self) -> Self {
         let index: i32 = self.into();
         MONTH_LIST[(((index - 1) + 12) % 12) as usize]
     }
 
     #[doc(hidden)]
-    pub fn number_of_days(&self, year: i32) -> i32 {
-        match *self {
+    pub fn number_of_days(self, year: i32) -> i32 {
+        match self {
             Month::February => {
                 if (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 {
                     29
@@ -56,8 +56,8 @@ impl Month {
     }
 
     #[doc(hidden)]
-    pub fn prev_number_of_days(&self, year: i32) -> i32 {
-        match *self {
+    pub fn prev_number_of_days(self, year: i32) -> i32 {
+        match self {
             Month::January => self.prev().number_of_days(year - 1),
             _ => self.prev().number_of_days(year),
         }
@@ -87,9 +87,9 @@ impl From<u32> for Month {
     }
 }
 
-impl<'a> Into<i32> for &'a Month {
+impl<'a> Into<i32> for Month {
     fn into(self) -> i32 {
-        match *self {
+        match self {
             Month::January => 0,
             Month::February => 1,
             Month::March => 2,

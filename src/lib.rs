@@ -50,6 +50,11 @@ pub enum ViewMode {
     Decade,
 }
 
+/// A callback taking a date as parameter.
+///
+/// This is an internal type used to improve readability.
+type DateCallback<T> = Rc<Fn(&mut Cursive, &Date<T>)>;
+
 /// View for selecting a date, supporting different modes for day, month or
 /// year based selection.
 ///
@@ -90,8 +95,8 @@ pub struct CalendarView<T: TimeZone, L: Locale> {
     earliest_date: Option<Date<T>>,
     latest_date: Option<Date<T>>,
     date: Date<T>,
-    on_submit: Option<Rc<Fn(&mut Cursive, &Date<T>)>>,
-    on_select: Option<Rc<Fn(&mut Cursive, &Date<T>)>>,
+    on_submit: Option<DateCallback<T>>,
+    on_select: Option<DateCallback<T>>,
 
     size: Vec2,
 
