@@ -14,9 +14,8 @@ pub enum WeekDay {
     /// Saturday.
     Saturday,
     /// Sunday.
-    Sunday
+    Sunday,
 }
-
 
 // Statics --------------------------------------------------------------------
 static WEEK_DAY_LIST: [WeekDay; 7] = [
@@ -26,9 +25,8 @@ static WEEK_DAY_LIST: [WeekDay; 7] = [
     WeekDay::Thursday,
     WeekDay::Friday,
     WeekDay::Saturday,
-    WeekDay::Sunday
+    WeekDay::Sunday,
 ];
-
 
 // Conversions ----------------------------------------------------------------
 impl From<i32> for WeekDay {
@@ -46,8 +44,7 @@ impl Into<i32> for WeekDay {
             WeekDay::Thursday => 3,
             WeekDay::Friday => 4,
             WeekDay::Saturday => 5,
-            WeekDay::Sunday => 6
+            WeekDay::Sunday => 6,
         }
     }
 }
-

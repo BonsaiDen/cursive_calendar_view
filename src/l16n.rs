@@ -1,10 +1,8 @@
 // Internal Dependencies ------------------------------------------------------
-use ::{Month, WeekDay};
-
+use {Month, WeekDay};
 
 /// Trait for localization of a [`CalendarView`](struct.CalendarView.html).
 pub trait Locale {
-
     /// Method returning the localized string for a specific [`WeekDay`](enum.WeekDay.html).
     ///
     /// Both *short* e.g. `Th` and *long* translations e.g. `Thursday` are suppported.
@@ -14,15 +12,12 @@ pub trait Locale {
     ///
     /// Both *short* e.g. `Dec` and *long* translations e.g. `December` are suppported.
     fn month(month: Month, long_text: bool) -> &'static str;
-
 }
-
 
 /// English locale for a [`CalendarView`](struct.CalendarView.html).
 pub struct EnglishLocale;
 
 impl Locale for EnglishLocale {
-
     fn week_day(day: WeekDay, long_text: bool) -> &'static str {
         if long_text {
             match day {
@@ -32,7 +27,7 @@ impl Locale for EnglishLocale {
                 WeekDay::Thursday => "Thursday",
                 WeekDay::Friday => "Friday",
                 WeekDay::Saturday => "Saturday",
-                WeekDay::Sunday => "Sunday"
+                WeekDay::Sunday => "Sunday",
             }
         } else {
             match day {
@@ -42,7 +37,7 @@ impl Locale for EnglishLocale {
                 WeekDay::Thursday => "Th",
                 WeekDay::Friday => "Fr",
                 WeekDay::Saturday => "Sa",
-                WeekDay::Sunday => "Su"
+                WeekDay::Sunday => "Su",
             }
         }
     }
@@ -61,7 +56,7 @@ impl Locale for EnglishLocale {
                 Month::September => "September",
                 Month::October => "October",
                 Month::November => "November",
-                Month::December => "December"
+                Month::December => "December",
             }
         } else {
             match month {
@@ -76,11 +71,8 @@ impl Locale for EnglishLocale {
                 Month::September => "Sep",
                 Month::October => "Oct",
                 Month::November => "Nov",
-                Month::December => "Dec"
+                Month::December => "Dec",
             }
         }
-
     }
-
 }
-

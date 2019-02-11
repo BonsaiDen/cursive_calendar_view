@@ -24,11 +24,10 @@ pub enum Month {
     /// The month of November.
     November,
     /// The month of December.
-    December
+    December,
 }
 
 impl Month {
-
     #[doc(hidden)]
     pub fn prev(&self) -> Self {
         let index: i32 = self.into();
@@ -41,13 +40,18 @@ impl Month {
             Month::February => {
                 if (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 {
                     29
-
                 } else {
                     28
                 }
-            },
-            Month::January | Month::March | Month::May | Month::July | Month::August | Month::October | Month::December => 31,
-            Month::April | Month::June | Month::September | Month::November => 30
+            }
+            Month::January
+            | Month::March
+            | Month::May
+            | Month::July
+            | Month::August
+            | Month::October
+            | Month::December => 31,
+            Month::April | Month::June | Month::September | Month::November => 30,
         }
     }
 
@@ -55,12 +59,10 @@ impl Month {
     pub fn prev_number_of_days(&self, year: i32) -> i32 {
         match *self {
             Month::January => self.prev().number_of_days(year - 1),
-            _ => self.prev().number_of_days(year)
+            _ => self.prev().number_of_days(year),
         }
     }
-
 }
-
 
 // Statics --------------------------------------------------------------------
 static MONTH_LIST: [Month; 12] = [
@@ -75,9 +77,8 @@ static MONTH_LIST: [Month; 12] = [
     Month::September,
     Month::October,
     Month::November,
-    Month::December
+    Month::December,
 ];
-
 
 // Conversions ----------------------------------------------------------------
 impl From<u32> for Month {
@@ -100,8 +101,7 @@ impl<'a> Into<i32> for &'a Month {
             Month::September => 8,
             Month::October => 9,
             Month::November => 10,
-            Month::December => 11
+            Month::December => 11,
         }
     }
 }
-

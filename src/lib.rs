@@ -1,46 +1,43 @@
 //! A calendar implementation for [cursive](https://crates.io/crates/cursive).
 #![deny(
     missing_docs,
-    trivial_casts, trivial_numeric_casts,
+    trivial_casts,
+    trivial_numeric_casts,
     unsafe_code,
-    unused_import_braces, unused_qualifications
+    unused_import_braces,
+    unused_qualifications
 )]
 
 // Crate Dependencies ---------------------------------------------------------
 extern crate chrono;
 extern crate cursive;
 
-
 // STD Dependencies -----------------------------------------------------------
 use std::cmp;
-use std::rc::Rc;
 use std::marker::PhantomData;
-
+use std::rc::Rc;
 
 // External Dependencies ------------------------------------------------------
-use chrono::prelude::*;
 use chrono::offset::TimeZone;
+use chrono::prelude::*;
 
-use cursive::With;
-use cursive::vec::Vec2;
-use cursive::view::View;
-use cursive::theme::ColorStyle;
-use cursive::{Cursive, Printer};
 use cursive::direction::Direction;
 use cursive::event::{Callback, Event, EventResult, Key};
-
+use cursive::theme::ColorStyle;
+use cursive::vec::Vec2;
+use cursive::view::View;
+use cursive::With;
+use cursive::{Cursive, Printer};
 
 // Modules --------------------------------------------------------------------
 mod l16n;
 mod month;
 mod week_day;
 
-
 // Re-Exports -----------------------------------------------------------------
+pub use l16n::{EnglishLocale, Locale};
 pub use month::Month;
 pub use week_day::WeekDay;
-pub use l16n::{Locale, EnglishLocale};
-
 
 /// Enumeration of all view modes supported by a [`CalendarView`](struct.CalendarView.html).
 #[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -50,7 +47,7 @@ pub enum ViewMode {
     /// View of a specific year, allowing selection of individual months.
     Year,
     /// View of a specific decade, allowing selection of individual years.
-    Decade
+    Decade,
 }
 
 /// View for selecting a date, supporting different modes for day, month or
@@ -80,7 +77,6 @@ pub enum ViewMode {
 /// # }
 /// ```
 pub struct CalendarView<T: TimeZone, L: Locale> {
-
     enabled: bool,
     show_iso_weeks: bool,
     week_start: WeekDay,
@@ -99,12 +95,10 @@ pub struct CalendarView<T: TimeZone, L: Locale> {
 
     size: Vec2,
 
-    _localization: PhantomData<L>
-
+    _localization: PhantomData<L>,
 }
 
 impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
-
     /// Creates new `CalendarView`.
     pub fn new(today: Date<T>) -> Self {
         Self {
@@ -121,7 +115,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
             size: (0, 0).into(),
             on_submit: None,
             on_select: None,
-            _localization: PhantomData
+            _localization: PhantomData,
         }
     }
 
@@ -154,7 +148,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     /// Sets the currently selected date of this view.
     pub fn set_selected_date(&mut self, mut date: Date<T>) {
-
         if let Some(ref earliest) = self.earliest_date {
             if date < *earliest {
                 date = earliest.clone();
@@ -168,7 +161,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
 
         self.date = date;
-
     }
 
     /// Sets the currently selected date of this view.
@@ -180,7 +172,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     /// Sets the visually selected date of this view.
     pub fn set_view_date(&mut self, mut date: Date<T>) {
-
         if let Some(ref earliest) = self.earliest_date {
             if date < *earliest {
                 date = earliest.clone();
@@ -194,7 +185,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
 
         self.view_date = date;
-
     }
 
     /// Sets the visually selected date of this view.
@@ -270,7 +260,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     /// Sets and limits the earliest date selectable by this view.
     pub fn set_earliest_date(&mut self, date: Option<Date<T>>) {
-
         self.earliest_date = date;
 
         if let Some(ref date) = self.earliest_date {
@@ -278,7 +267,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
                 self.date = date.clone();
             }
         }
-
     }
 
     /// Sets and limits the earliest date selectable by this view.
@@ -290,7 +278,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     /// Sets and limits the latest date selectable by this view.
     pub fn set_latest_date(&mut self, date: Option<Date<T>>) {
-
         self.latest_date = date;
 
         if let Some(ref date) = self.latest_date {
@@ -298,7 +285,6 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
                 self.date = date.clone();
             }
         }
-
     }
 
     /// Sets and limits the latest date selectable by this view.
@@ -340,7 +326,8 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
     /// Sets a callback to be used when `<Enter>` is pressed to select a date.
     pub fn set_on_submit<F>(&mut self, cb: F)
-        where F: Fn(&mut Cursive, &Date<T>) + 'static
+    where
+        F: Fn(&mut Cursive, &Date<T>) + 'static,
     {
         self.on_submit = Some(Rc::new(move |s, date| cb(s, date)));
     }
@@ -349,14 +336,16 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     ///
     /// Chainable variant.
     pub fn on_submit<F>(self, cb: F) -> Self
-        where F: Fn(&mut Cursive, &Date<T>) + 'static
+    where
+        F: Fn(&mut Cursive, &Date<T>) + 'static,
     {
         self.with(|v| v.set_on_submit(cb))
     }
 
     /// Sets a callback to be used when an a new date is visually selected.
     pub fn set_on_select<F>(&mut self, cb: F)
-        where F: Fn(&mut Cursive, &Date<T>) + 'static
+    where
+        F: Fn(&mut Cursive, &Date<T>) + 'static,
     {
         self.on_select = Some(Rc::new(move |s, date| cb(s, date)));
     }
@@ -365,17 +354,15 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     ///
     /// Chainable variant.
     pub fn on_select<F>(self, cb: F) -> Self
-        where F: Fn(&mut Cursive, &Date<T>) + 'static
+    where
+        F: Fn(&mut Cursive, &Date<T>) + 'static,
     {
         self.with(|v| v.set_on_select(cb))
     }
-
 }
 
 impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
-
     fn draw_month(&self, printer: &Printer) {
-
         let year = self.view_date.year();
         let month: Month = self.view_date.month0().into();
         let month_start = self.view_date.with_day0(0).unwrap();
@@ -396,8 +383,8 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
             &format!(
                 "{:^width$}",
                 format!("{} {}", L::month(month, true), year),
-                width=self.size.x
-            )
+                width = self.size.x
+            ),
         );
 
         // Draw Weekdays
@@ -405,10 +392,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         let w_offset: i32 = self.week_start.into();
         for i in 0..7 {
             let week_day: WeekDay = (i + w_offset).into();
-            printer.print(
-                (h_offset + i * 3, 1),
-                L::week_day(week_day, false)
-            );
+            printer.print((h_offset + i * 3, 1), L::week_day(week_day, false));
         }
 
         // Draw days
@@ -416,70 +400,51 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         let d_offset = ((first_week_day as i32) + d_shift) % 7;
 
         for (index, i) in (-d_offset..-d_offset + 42).enumerate() {
-
             let (day_number, month_offset) = if i < 0 {
                 (prev_month_days + i, -1)
-
             } else if i > month_days - 1 {
                 (i - month_days, 1)
-
             } else {
                 (i, 0)
             };
 
-            if let Some(exact_date) = date_from_day_and_offsets(
-                &self.view_date,
-                Some(day_number),
-                0,
-                month_offset,
-                0
-            ) {
-
+            if let Some(exact_date) =
+                date_from_day_and_offsets(&self.view_date, Some(day_number), 0, month_offset, 0)
+            {
                 let color = if !self.date_available(&exact_date) {
                     ColorStyle::tertiary()
-
                 } else if i < 0 {
                     if active_day == prev_month_days + i && d_month == -1 && d_year == 0 {
                         if self.enabled && printer.focused {
                             ColorStyle::highlight_inactive()
-
                         } else {
                             ColorStyle::secondary()
                         }
-
                     } else {
                         ColorStyle::secondary()
                     }
-
                 } else if i > month_days - 1 {
                     if active_day == i - month_days && d_month == 1 && d_year == 0 {
                         if self.enabled && printer.focused {
                             ColorStyle::highlight_inactive()
-
                         } else {
                             ColorStyle::secondary()
                         }
-
                     } else {
                         ColorStyle::secondary()
                     }
-
                 } else if view_day == i {
                     if self.enabled && printer.focused {
                         ColorStyle::highlight()
-
                     } else {
                         ColorStyle::highlight_inactive()
                     }
-
                 } else if active_day == i && d_month == 0 && d_year == 0 {
                     if self.enabled {
                         ColorStyle::highlight_inactive()
-
                     } else {
                         ColorStyle::primary()
                     }
-
                 } else {
                     ColorStyle::primary()
                 };
@@ -497,15 +462,11 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
                         printer.print((0, y), &format!("{:>2}", iso_week));
                     });
                 }
-
             }
-
         }
-
     }
 
     fn draw_year(&self, printer: &Printer) {
-
         let active_month = self.date.month0();
         let view_month = self.view_date.month0();
         let year = self.view_date.year();
@@ -514,56 +475,38 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         // Draw Year
         printer.print(
             (0, 0),
-            &format!(
-                "{:^width$}",
-                format!("{}", year),
-                width=self.size.x
-            )
+            &format!("{:^width$}", format!("{}", year), width = self.size.x),
         );
 
         // Draw Month Names
         let h_offset = if self.show_iso_weeks { 2 } else { 0 };
         for i in 0..12 {
-
             let color = if !self.month_available(i, year) {
                 ColorStyle::tertiary()
-
             } else if view_month == i {
                 if self.enabled && printer.focused {
                     ColorStyle::highlight()
-
                 } else {
                     ColorStyle::highlight_inactive()
                 }
-
             } else if active_month == i && d_year == 0 {
                 if self.enabled && printer.focused {
                     ColorStyle::highlight_inactive()
-
                 } else {
                     ColorStyle::primary()
                 }
-
             } else {
                 ColorStyle::primary()
             };
 
             let (x, y) = (h_offset + (i as i32 % 4) * 5, 2 + (i as i32 / 4) * 2);
             printer.with_color(color, |printer| {
-                printer.print(
-                    (x, y),
-                    &format!(
-                        "{:>4}", L::month(i.into(), false)
-                    )
-                );
+                printer.print((x, y), &format!("{:>4}", L::month(i.into(), false)));
             });
-
         }
-
     }
 
     fn draw_decade(&self, printer: &Printer) {
-
         let active_year = self.date.year();
         let view_year = self.view_date.year();
         let decade = view_year - (view_year % 10);
@@ -574,69 +517,54 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
             &format!(
                 "{:^width$}",
                 format!("{} - {}", decade, decade + 9),
-                width=self.size.x
-            )
+                width = self.size.x
+            ),
         );
 
         // Draw Years
         let h_offset = if self.show_iso_weeks { 2 } else { 0 };
         for (index, i) in (-1..12).enumerate() {
-
             let year = decade + i;
             let color = if !self.year_available(year) {
                 ColorStyle::tertiary()
-
             } else if i < 0 || i > 9 {
                 if active_year == year {
                     if self.enabled && printer.focused {
                         ColorStyle::highlight_inactive()
-
                     } else {
                         ColorStyle::secondary()
                     }
-
                 } else {
                     ColorStyle::secondary()
                 }
-
             } else if view_year == year {
                 if self.enabled && printer.focused {
                     ColorStyle::highlight()
-
                 } else {
                     ColorStyle::highlight_inactive()
                 }
-
             } else if active_year == year {
                 if self.enabled {
                     ColorStyle::highlight_inactive()
-
                 } else {
                     ColorStyle::primary()
                 }
-
             } else {
                 ColorStyle::primary()
             };
 
             let (x, y) = (
                 h_offset + (index as i32 % 4) * 5,
-                2 + (index as i32 / 4) * 2
+                2 + (index as i32 / 4) * 2,
             );
 
             printer.with_color(color, |printer| {
-                printer.print(
-                    (x, y),
-                    &format!("{:>4}", year)
-                );
+                printer.print((x, y), &format!("{:>4}", year));
             });
-
         }
-
     }
 
     fn date_available(&self, date: &Date<T>) -> bool {
-
         if let Some(ref earliest) = self.earliest_date {
             if *date < *earliest {
                 return false;
@@ -650,13 +578,11 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
 
         true
-
     }
 
     fn month_available(&self, month: u32, year: i32) -> bool {
-
         if !self.year_available(year) {
-            return false
+            return false;
         }
 
         if let Some(ref earliest) = self.earliest_date {
@@ -672,11 +598,9 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
 
         true
-
     }
 
     fn year_available(&self, year: i32) -> bool {
-
         if let Some(ref earliest) = self.earliest_date {
             if year < earliest.year() {
                 return false;
@@ -690,26 +614,22 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
 
         true
-
     }
-
 }
 
 impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
-
     fn draw(&self, printer: &Printer) {
         match self.view_mode {
             ViewMode::Month => self.draw_month(printer),
             ViewMode::Year => self.draw_year(printer),
-            ViewMode::Decade => self.draw_decade(printer)
+            ViewMode::Decade => self.draw_decade(printer),
         }
     }
 
     fn required_size(&mut self, _: Vec2) -> Vec2 {
         self.size = if self.show_iso_weeks {
             (23, 8).into()
-
-        } else{
+        } else {
             (20, 8).into()
         };
         self.size
@@ -720,67 +640,53 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
     }
 
     fn on_event(&mut self, event: Event) -> EventResult {
-
         if !self.enabled {
             return EventResult::Ignored;
         }
 
         let last_view_date = self.view_date.clone();
         let offsets = match event {
-            Event::Key(Key::Up) => {
-                Some(match self.view_mode {
-                    ViewMode::Month => (-7, 0, 0),
-                    ViewMode::Year => (0, -4, 0),
-                    ViewMode::Decade => (0, 0, -4)
-                })
-            },
-            Event::Key(Key::Down) => {
-                Some(match self.view_mode {
-                    ViewMode::Month => (7, 0, 0),
-                    ViewMode::Year => (0, 4, 0),
-                    ViewMode::Decade => (0, 0, 4)
-                })
-            },
-            Event::Key(Key::Right) => {
-                Some(match self.view_mode {
-                    ViewMode::Month => (1, 0, 0),
-                    ViewMode::Year => (0, 1, 0),
-                    ViewMode::Decade => (0, 0, 1)
-                })
-            },
-            Event::Key(Key::Left) => {
-                Some(match self.view_mode {
-                    ViewMode::Month => (-1, 0, 0),
-                    ViewMode::Year => (0, -1, 0),
-                    ViewMode::Decade => (0, 0, -1)
-                })
-            },
-            Event::Key(Key::PageUp) => {
-                Some(match self.view_mode {
-                    ViewMode::Month => (0, 1, 0),
-                    ViewMode::Year => (0, 0, 1),
-                    ViewMode::Decade => (0, 0, 10)
-                })
-            },
-            Event::Key(Key::PageDown) => {
-                Some(match self.view_mode {
-                    ViewMode::Month => (0, -1, 0),
-                    ViewMode::Year => (0, 0, -1),
-                    ViewMode::Decade => (0, 0, -10)
-                })
-            },
+            Event::Key(Key::Up) => Some(match self.view_mode {
+                ViewMode::Month => (-7, 0, 0),
+                ViewMode::Year => (0, -4, 0),
+                ViewMode::Decade => (0, 0, -4),
+            }),
+            Event::Key(Key::Down) => Some(match self.view_mode {
+                ViewMode::Month => (7, 0, 0),
+                ViewMode::Year => (0, 4, 0),
+                ViewMode::Decade => (0, 0, 4),
+            }),
+            Event::Key(Key::Right) => Some(match self.view_mode {
+                ViewMode::Month => (1, 0, 0),
+                ViewMode::Year => (0, 1, 0),
+                ViewMode::Decade => (0, 0, 1),
+            }),
+            Event::Key(Key::Left) => Some(match self.view_mode {
+                ViewMode::Month => (-1, 0, 0),
+                ViewMode::Year => (0, -1, 0),
+                ViewMode::Decade => (0, 0, -1),
+            }),
+            Event::Key(Key::PageUp) => Some(match self.view_mode {
+                ViewMode::Month => (0, 1, 0),
+                ViewMode::Year => (0, 0, 1),
+                ViewMode::Decade => (0, 0, 10),
+            }),
+            Event::Key(Key::PageDown) => Some(match self.view_mode {
+                ViewMode::Month => (0, -1, 0),
+                ViewMode::Year => (0, 0, -1),
+                ViewMode::Decade => (0, 0, -10),
+            }),
             Event::Key(Key::Backspace) => {
                 if self.view_mode < self.highest_view_mode {
                     self.view_mode = match self.view_mode {
                         ViewMode::Month => ViewMode::Year,
-                        ViewMode::Year | ViewMode::Decade => ViewMode::Decade
+                        ViewMode::Year | ViewMode::Decade => ViewMode::Decade,
                     };
                 }
                 None
-            },
+            }
             Event::Key(Key::Enter) => {
                 if self.view_mode == self.lowest_view_mode {
-
                     self.date = self.view_date.clone();
 
                     if self.on_submit.is_some() {
@@ -790,44 +696,35 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
                             cb(s, &date)
                         })));
                     }
-
                 } else {
                     self.view_mode = match self.view_mode {
                         ViewMode::Month | ViewMode::Year => ViewMode::Month,
-                        ViewMode::Decade => ViewMode::Year
+                        ViewMode::Decade => ViewMode::Year,
                     };
                 }
                 None
-            },
-            _ => return EventResult::Ignored
+            }
+            _ => return EventResult::Ignored,
         };
 
         if let Some((day, month, year)) = offsets {
-            if let Some(date) = date_from_day_and_offsets(
-                &last_view_date,
-                None,
-                day,
-                month,
-                year
-            ) {
+            if let Some(date) = date_from_day_and_offsets(&last_view_date, None, day, month, year) {
                 self.set_view_date(date);
             }
         }
 
         if self.view_date != last_view_date {
             let date = self.view_date.clone();
-            EventResult::Consumed(self.on_select.clone().map(|cb| {
-                Callback::from_fn(move |s| cb(s, &date))
-            }))
-
+            EventResult::Consumed(
+                self.on_select
+                    .clone()
+                    .map(|cb| Callback::from_fn(move |s| cb(s, &date))),
+            )
         } else {
             EventResult::Consumed(None)
         }
-
     }
-
 }
-
 
 // Helpers --------------------------------------------------------------------
 fn date_from_day_and_offsets<T: TimeZone>(
@@ -835,19 +732,16 @@ fn date_from_day_and_offsets<T: TimeZone>(
     set_day: Option<i32>,
     day_offset: i32,
     month_offset: i32,
-    year_offset: i32
-
+    year_offset: i32,
 ) -> Option<Date<T>> {
-
     let mut year = date.year() + year_offset;
     let mut month = date.month0() as i32;
 
     month += month_offset;
 
-    if month < 0  {
+    if month < 0 {
         year -= 1;
         month += 12;
-
     } else if month > 11 {
         year += 1;
         month -= 12;
@@ -855,13 +749,11 @@ fn date_from_day_and_offsets<T: TimeZone>(
 
     date.with_day0(0).unwrap().with_year(year).and_then(|d| {
         d.with_month0(month as u32).and_then(|d| {
-
             let month: Month = d.month0().into();
             let number_of_days = month.number_of_days(year);
 
-            let mut day = set_day.unwrap_or_else(|| {
-                cmp::min(number_of_days - 1, date.day0() as i32)
-            });
+            let mut day =
+                set_day.unwrap_or_else(|| cmp::min(number_of_days - 1, date.day0() as i32));
 
             if day_offset < 0 {
                 day += day_offset;
@@ -869,7 +761,6 @@ fn date_from_day_and_offsets<T: TimeZone>(
                     day += month.prev_number_of_days(year);
                     return date_from_day_and_offsets(&d, Some(day), 0, -1, 0);
                 }
-
             } else if day_offset > 0 {
                 day += day_offset;
                 if day > number_of_days - 1 {
@@ -879,9 +770,6 @@ fn date_from_day_and_offsets<T: TimeZone>(
             }
 
             d.with_day0(day as u32)
-
         })
     })
-
 }
-
