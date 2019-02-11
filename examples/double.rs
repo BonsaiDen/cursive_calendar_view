@@ -14,18 +14,18 @@ use cursive_calendar_view::{CalendarView, EnglishLocale, ViewMode};
 
 // Example --------------------------------------------------------------------
 fn main() {
-    let mut siv = Cursive::new();
+    let mut siv = Cursive::default();
 
-    let mut calendar_a = CalendarView::<UTC, EnglishLocale>::new(UTC.ymd(2017, 7, 26));
+    let mut calendar_a = CalendarView::<Utc, EnglishLocale>::new(Utc.ymd(2017, 7, 26));
     calendar_a.set_highest_view_mode(ViewMode::Year);
-    calendar_a.set_earliest_date(Some(UTC.ymd(2017, 1, 1)));
-    calendar_a.set_latest_date(Some(UTC.ymd(2017, 12, 31)));
+    calendar_a.set_earliest_date(Some(Utc.ymd(2017, 1, 1)));
+    calendar_a.set_latest_date(Some(Utc.ymd(2017, 12, 31)));
     calendar_a.set_show_iso_weeks(true);
 
-    let mut calendar_b = CalendarView::<UTC, EnglishLocale>::new(UTC.ymd(2017, 7, 26));
+    let mut calendar_b = CalendarView::<Utc, EnglishLocale>::new(Utc.ymd(2017, 7, 26));
     calendar_b.set_highest_view_mode(ViewMode::Year);
-    calendar_b.set_earliest_date(Some(UTC.ymd(2017, 1, 1)));
-    calendar_b.set_latest_date(Some(UTC.ymd(2017, 12, 31)));
+    calendar_b.set_earliest_date(Some(Utc.ymd(2017, 1, 1)));
+    calendar_b.set_latest_date(Some(Utc.ymd(2017, 12, 31)));
 
     let mut layout = LinearLayout::new(Orientation::Horizontal);
     layout.add_child(calendar_a);

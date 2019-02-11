@@ -68,11 +68,11 @@ pub enum ViewMode {
 /// # use cursive_calendar_view::{CalendarView, EnglishLocale, ViewMode};
 /// # fn main() {
 /// // Allow selection a date within the year of 2017.
-/// let mut calendar = CalendarView::<UTC, EnglishLocale>::new(UTC::today());
+/// let mut calendar = CalendarView::<Utc, EnglishLocale>::new(Utc::today());
 ///
 /// calendar.set_highest_view_mode(ViewMode::Year);
-/// calendar.set_earliest_date(Some(UTC.ymd(2017, 1, 1)));
-/// calendar.set_latest_date(Some(UTC.ymd(2017, 12, 31)));
+/// calendar.set_earliest_date(Some(Utc.ymd(2017, 1, 1)));
+/// calendar.set_latest_date(Some(Utc.ymd(2017, 12, 31)));
 /// calendar.set_show_iso_weeks(true);
 /// # }
 /// ```
@@ -457,7 +457,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
                 // Draw ISO Weeks (Only makes sense when start_of_week is Monday)
                 if self.show_iso_weeks && index as i32 % 7 == 0 {
-                    let (_, iso_week, _) = exact_date.isoweekdate();
+                    let iso_week = exact_date.iso_week().week();
                     printer.with_color(ColorStyle::title_secondary(), |printer| {
                         printer.print((0, y), &format!("{:>2}", iso_week));
                     });
