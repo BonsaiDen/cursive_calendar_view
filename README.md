@@ -18,30 +18,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cursive_calendar_view = "0.3"
+cursive_calendar_view = "0.4"
 ```
 
 and this to your crate root:
 
 ```rust
 extern crate cursive_calendar_view;
-```
-
-### Different backends
-
-If you are using `cursive` with a different backend, you'll need to *forward*
-the identical features to your `cursive_calendar_view` dependency:
-
-```toml
-[dependencies.cursive]
-version = "0.10"
-default-features = false
-features = ["blt-backend"]
-
-[dependencies.cursive_calendar_view]
-version = "0.3"
-default-features = false
-features = ["blt-backend"]
 ```
 
 ## License
