@@ -53,7 +53,7 @@ pub enum ViewMode {
 /// A callback taking a date as parameter.
 ///
 /// This is an internal type used to improve readability.
-type DateCallback<T> = Rc<Fn(&mut Cursive, &Date<T>)>;
+type DateCallback<T> = Rc<dyn Fn(&mut Cursive, &Date<T>)>;
 
 /// View for selecting a date, supporting different modes for day, month or
 /// year based selection.
