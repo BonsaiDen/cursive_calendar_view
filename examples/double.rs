@@ -6,7 +6,7 @@ extern crate cursive_calendar_view;
 // External Dependencies ------------------------------------------------------
 use chrono::prelude::*;
 use cursive::direction::Orientation;
-use cursive::views::{BoxView, Dialog, DummyView, LinearLayout};
+use cursive::views::{Dialog, DummyView, LinearLayout, ResizedView};
 use cursive::Cursive;
 
 // Modules --------------------------------------------------------------------
@@ -29,7 +29,7 @@ fn main() {
 
     let mut layout = LinearLayout::new(Orientation::Horizontal);
     layout.add_child(calendar_a);
-    layout.add_child(BoxView::with_fixed_size((4, 0), DummyView));
+    layout.add_child(ResizedView::with_fixed_size((4, 0), DummyView));
     layout.add_child(calendar_b);
 
     siv.add_layer(Dialog::around(layout).title("Calendar View Demo"));

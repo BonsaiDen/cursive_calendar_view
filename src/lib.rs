@@ -744,37 +744,67 @@ fn date_from_day_and_offsets<T: TimeZone>(
 
     month += month_offset;
 
-    if month < 0 {
+    while month < 0 {
         year -= 1;
         month += 12;
-    } else if month > 11 {
-        year += 1;
-        month -= 12;
     }
 
-    date.with_day0(0).unwrap().with_year(year).and_then(|d| {
-        d.with_month0(month as u32).and_then(|d| {
-            let month: Month = d.month0().into();
-            let number_of_days = month.number_of_days(year);
+    while month >= 12 {
+        month -= 12;
+        year += 1;
+    }
 
-            let mut day =
-                set_day.unwrap_or_else(|| cmp::min(number_of_days - 1, date.day0() as i32));
+    let d = date
+        .with_day0(0)?
+        .with_year(year)?
+        .with_month0(month as u32)?;
 
-            if day_offset < 0 {
-                day += day_offset;
-                if day < 0 {
-                    day += month.prev_number_of_days(year);
-                    return date_from_day_and_offsets(&d, Some(day), 0, -1, 0);
-                }
-            } else if day_offset > 0 {
-                day += day_offset;
-                if day > number_of_days - 1 {
-                    day -= number_of_days;
-                    return date_from_day_and_offsets(&d, Some(day), 0, 1, 0);
-                }
-            }
+    let month: Month = d.month0().into();
+    let number_of_days = month.number_of_days(year);
 
-            d.with_day0(day as u32)
-        })
-    })
+    let mut day = set_day.unwrap_or_else(|| cmp::min(number_of_days - 1, date.day0() as i32));
+
+    day += day_offset;
+    if day < 0 {
+        day += month.prev_number_of_days(year);
+        date_from_day_and_offsets(&d, Some(day), 0, -1, 0)
+    } else if day >= number_of_days {
+        day -= number_of_days;
+        date_from_day_and_offsets(&d, Some(day), 0, 1, 0)
+    } else {
+        d.with_day0(day as u32)
+    }
+}
+
+#[test]
+fn test_offsets() {
+    let date = Utc.ymd(1969, 7, 20);
+
+    // Moon landing
+    assert_eq!(
+        Some(Utc.ymd(1969, 7, 20)),
+        date_from_day_and_offsets(&date, None, 0, 0, 0)
+    );
+
+    // Mission start
+    assert_eq!(
+        Some(Utc.ymd(1969, 7, 16)),
+        date_from_day_and_offsets(&date, None, -4, 0, 0)
+    );
+
+    // Mission end
+    assert_eq!(
+        Some(Utc.ymd(1969, 7, 24)),
+        date_from_day_and_offsets(&date, None, 4, 0, 0)
+    );
+
+    // Quarantine lifted
+    assert_eq!(
+        Some(Utc.ymd(1969, 8, 10)),
+        date_from_day_and_offsets(&date, None, 21, 0, 0)
+    );
+    assert_eq!(
+        Some(Utc.ymd(1969, 8, 10)),
+        date_from_day_and_offsets(&date, None, -10, 1, 0)
+    );
 }
