@@ -7,14 +7,13 @@ extern crate cursive_calendar_view;
 use chrono::prelude::*;
 use cursive::direction::Orientation;
 use cursive::views::{Dialog, DummyView, LinearLayout, ResizedView};
-use cursive::Cursive;
 
 // Modules --------------------------------------------------------------------
 use cursive_calendar_view::{CalendarView, EnglishLocale, ViewMode};
 
 // Example --------------------------------------------------------------------
 fn main() {
-    let mut siv = Cursive::default();
+    let mut siv = cursive::default();
 
     let mut calendar_a = CalendarView::<Utc, EnglishLocale>::new(Utc.ymd(2017, 7, 26));
     calendar_a.set_highest_view_mode(ViewMode::Year);
