@@ -18,7 +18,7 @@ use cursive_calendar_view::{CalendarView, EnglishLocale, ViewMode};
 
 // Example --------------------------------------------------------------------
 fn main() {
-    let mut siv = Cursive::default();
+    let mut siv = cursive::default();
 
     let stored_date: Rc<RefCell<Date<Utc>>> = Rc::new(RefCell::new(Utc.ymd(2017, 12, 31)));
     siv.add_layer(
