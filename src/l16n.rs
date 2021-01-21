@@ -1,5 +1,5 @@
 // Internal Dependencies ------------------------------------------------------
-use {Month, WeekDay};
+use crate::{Month, WeekDay};
 
 /// Trait for localization of a [`CalendarView`](struct.CalendarView.html).
 pub trait Locale {

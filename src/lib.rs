@@ -9,7 +9,7 @@
 )]
 
 // Crate Dependencies ---------------------------------------------------------
-extern crate chrono;
+
 extern crate cursive_core as cursive;
 
 // STD Dependencies -----------------------------------------------------------
@@ -21,13 +21,13 @@ use std::rc::Rc;
 use chrono::offset::TimeZone;
 use chrono::prelude::*;
 
-use cursive::direction::Direction;
-use cursive::event::{Callback, Event, EventResult, Key};
-use cursive::theme::ColorStyle;
-use cursive::vec::Vec2;
-use cursive::view::View;
-use cursive::With;
-use cursive::{Cursive, Printer};
+use crate::cursive::direction::Direction;
+use crate::cursive::event::{Callback, Event, EventResult, Key};
+use crate::cursive::theme::ColorStyle;
+use crate::cursive::vec::Vec2;
+use crate::cursive::view::View;
+use crate::cursive::With;
+use crate::cursive::{Cursive, Printer};
 
 // Modules --------------------------------------------------------------------
 mod l16n;
@@ -35,9 +35,9 @@ mod month;
 mod week_day;
 
 // Re-Exports -----------------------------------------------------------------
-pub use l16n::{EnglishLocale, Locale};
-pub use month::Month;
-pub use week_day::WeekDay;
+pub use crate::l16n::{EnglishLocale, Locale};
+pub use crate::month::Month;
+pub use crate::week_day::WeekDay;
 
 /// Enumeration of all view modes supported by a [`CalendarView`](struct.CalendarView.html).
 #[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -367,7 +367,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 }
 
 impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
-    fn draw_month(&self, printer: &Printer) {
+    fn draw_month(&self, printer: &Printer<'_, '_>) {
         let year = self.view_date.year();
         let month: Month = self.view_date.month0().into();
         let month_start = self.view_date.with_day0(0).unwrap();
@@ -471,7 +471,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
     }
 
-    fn draw_year(&self, printer: &Printer) {
+    fn draw_year(&self, printer: &Printer<'_, '_>) {
         let active_month = self.date.month0();
         let view_month = self.view_date.month0();
         let year = self.view_date.year();
@@ -511,7 +511,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
         }
     }
 
-    fn draw_decade(&self, printer: &Printer) {
+    fn draw_decade(&self, printer: &Printer<'_, '_>) {
         let active_year = self.date.year();
         let view_year = self.view_date.year();
         let decade = view_year - (view_year % 10);
@@ -532,7 +532,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
             let year = decade + i;
             let color = if !self.year_available(year) {
                 ColorStyle::tertiary()
-            } else if i < 0 || i > 9 {
+            } else if !(0..=9).contains(&i) {
                 if active_year == year {
                     if self.enabled && printer.focused {
                         ColorStyle::highlight_inactive()
@@ -623,7 +623,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 }
 
 impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
-    fn draw(&self, printer: &Printer) {
+    fn draw(&self, printer: &Printer<'_, '_>) {
         match self.view_mode {
             ViewMode::Month => self.draw_month(printer),
             ViewMode::Year => self.draw_year(printer),

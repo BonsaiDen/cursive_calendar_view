@@ -1,7 +1,7 @@
 // Crate Dependencies ---------------------------------------------------------
-extern crate chrono;
-extern crate cursive;
-extern crate cursive_calendar_view;
+
+use cursive;
+
 
 // STD Dependencies -----------------------------------------------------------
 use std::cell::RefCell;
