@@ -746,8 +746,8 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
                         let h_offset = if self.show_iso_weeks { 2 } else { 0 };
                         if position.y < 2
                             || position.y % 2 != 0
-                            || position.x >= h_offset
-                            || (position.x - h_offset) % 5 != 4
+                            || position.x < h_offset
+                            || (position.x - h_offset) % 5 == 4
                         {
                             return EventResult::Ignored;
                         }
