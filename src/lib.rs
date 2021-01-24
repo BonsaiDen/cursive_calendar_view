@@ -726,6 +726,13 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
                 match self.view_mode {
                     ViewMode::Decade => {
                         let h_offset = if self.show_iso_weeks { 2 } else { 0 };
+                        if position.y < 2
+                            || position.y % 2 != 0
+                            || position.x < h_offset
+                            || (position.x - h_offset) % 5 == 4
+                        {
+                            return EventResult::Ignored;
+                        }
                         let cell_index = (position.x - h_offset) / 5 + (position.y - 2) * 2;
                         let current_index = 1 + last_view_date.year() % 10;
 
@@ -737,21 +744,20 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
                     }
                     ViewMode::Year => {
                         let h_offset = if self.show_iso_weeks { 2 } else { 0 };
-                        if position.y >= 2
-                            && position.y % 2 == 0
-                            && position.x >= h_offset
-                            && (position.x - h_offset) % 5 != 4
+                        if position.y < 2
+                            || position.y % 2 != 0
+                            || position.x >= h_offset
+                            || (position.x - h_offset) % 5 != 4
                         {
-                            let month = 4 * (position.y.saturating_sub(2) / 2)
-                                + ((position.x - h_offset) / 5);
-                            let offset = month as i32 - last_view_date.month0() as i32;
-                            if offset == 0 && btn == MouseButton::Left {
-                                return self.submit();
-                            }
-                            Some((0, offset, 0))
-                        } else {
-                            None
+                            return EventResult::Ignored;
                         }
+                        let month =
+                            4 * (position.y.saturating_sub(2) / 2) + ((position.x - h_offset) / 5);
+                        let offset = month as i32 - last_view_date.month0() as i32;
+                        if offset == 0 && btn == MouseButton::Left {
+                            return self.submit();
+                        }
+                        Some((0, offset, 0))
                     }
                     ViewMode::Month => {
                         let h_offset = if self.show_iso_weeks { 3 } else { 0 };
