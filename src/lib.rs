@@ -22,7 +22,7 @@ use chrono::offset::TimeZone;
 use chrono::prelude::*;
 
 use crate::cursive::direction::Direction;
-use crate::cursive::event::{Callback, Event, EventResult, Key};
+use crate::cursive::event::{Callback, Event, EventResult, Key, MouseButton, MouseEvent};
 use crate::cursive::theme::ColorStyle;
 use crate::cursive::vec::Vec2;
 use crate::cursive::view::View;
@@ -620,6 +620,27 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
 
         true
     }
+
+    fn submit(&mut self) -> EventResult
+    where
+        T: 'static,
+    {
+        if self.view_mode == self.lowest_view_mode {
+            self.date = self.view_date.clone();
+
+            if self.on_submit.is_some() {
+                let cb = self.on_submit.clone().unwrap();
+                let date = self.date.clone();
+                return EventResult::Consumed(Some(Callback::from_fn(move |s| cb(s, &date))));
+            }
+        } else {
+            self.view_mode = match self.view_mode {
+                ViewMode::Month | ViewMode::Year => ViewMode::Month,
+                ViewMode::Decade => ViewMode::Year,
+            };
+        }
+        EventResult::Consumed(None)
+    }
 }
 
 impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
@@ -672,14 +693,14 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
                 ViewMode::Decade => (0, 0, -1),
             }),
             Event::Key(Key::PageUp) => Some(match self.view_mode {
-                ViewMode::Month => (0, 1, 0),
-                ViewMode::Year => (0, 0, 1),
-                ViewMode::Decade => (0, 0, 10),
-            }),
-            Event::Key(Key::PageDown) => Some(match self.view_mode {
                 ViewMode::Month => (0, -1, 0),
                 ViewMode::Year => (0, 0, -1),
                 ViewMode::Decade => (0, 0, -10),
+            }),
+            Event::Key(Key::PageDown) => Some(match self.view_mode {
+                ViewMode::Month => (0, 1, 0),
+                ViewMode::Year => (0, 0, 1),
+                ViewMode::Decade => (0, 0, 10),
             }),
             Event::Key(Key::Backspace) => {
                 if self.view_mode < self.highest_view_mode {
@@ -691,23 +712,73 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
                 None
             }
             Event::Key(Key::Enter) => {
-                if self.view_mode == self.lowest_view_mode {
-                    self.date = self.view_date.clone();
+                return self.submit();
+            }
+            Event::Mouse {
+                position,
+                offset,
+                event: MouseEvent::Press(btn),
+            } => {
+                let position = match position.checked_sub(offset) {
+                    Some(position) => position,
+                    None => return EventResult::Ignored,
+                };
+                match self.view_mode {
+                    ViewMode::Decade => {
+                        let h_offset = if self.show_iso_weeks { 2 } else { 0 };
+                        let cell_index = (position.x - h_offset) / 5 + (position.y - 2) * 2;
+                        let current_index = 1 + last_view_date.year() % 10;
 
-                    if self.on_submit.is_some() {
-                        let cb = self.on_submit.clone().unwrap();
-                        let date = self.date.clone();
-                        return EventResult::Consumed(Some(Callback::from_fn(move |s| {
-                            cb(s, &date)
-                        })));
+                        let offset = cell_index as i32 - current_index;
+                        if offset == 0 && btn == MouseButton::Left {
+                            return self.submit();
+                        }
+                        Some((0, 0, offset))
                     }
-                } else {
-                    self.view_mode = match self.view_mode {
-                        ViewMode::Month | ViewMode::Year => ViewMode::Month,
-                        ViewMode::Decade => ViewMode::Year,
-                    };
+                    ViewMode::Year => {
+                        let h_offset = if self.show_iso_weeks { 2 } else { 0 };
+                        if position.y >= 2
+                            && position.y % 2 == 0
+                            && position.x >= h_offset
+                            && (position.x - h_offset) % 5 != 4
+                        {
+                            let month = 4 * (position.y.saturating_sub(2) / 2)
+                                + ((position.x - h_offset) / 5);
+                            let offset = month as i32 - last_view_date.month0() as i32;
+                            if offset == 0 && btn == MouseButton::Left {
+                                return self.submit();
+                            }
+                            Some((0, offset, 0))
+                        } else {
+                            None
+                        }
+                    }
+                    ViewMode::Month => {
+                        let h_offset = if self.show_iso_weeks { 3 } else { 0 };
+
+                        if position.y < 2
+                            || position.x < h_offset
+                            || (position.x - h_offset) % 3 == 2
+                        {
+                            return EventResult::Ignored;
+                        }
+
+                        let cell_index = (position.x - h_offset) / 3 + 7 * (position.y - 2);
+
+                        let month_start = self.view_date.with_day0(0).unwrap();
+                        let first_week_day: WeekDay = (month_start.weekday() as i32).into();
+                        let w_offset: i32 = self.week_start.into();
+                        let d_shift = ((WeekDay::Monday as i32 - w_offset) + 7) % 7;
+                        let d_offset = ((first_week_day as i32) + d_shift) % 7;
+                        let current_index = last_view_date.day0() as i32 + d_offset;
+
+                        let offset = cell_index as i32 - current_index;
+                        if offset == 0 && btn == MouseButton::Left {
+                            return self.submit();
+                        }
+                        Some((offset, 0, 0))
+                    }
                 }
-                None
             }
             _ => return EventResult::Ignored,
         };

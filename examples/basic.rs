@@ -2,7 +2,6 @@
 
 use cursive;
 
-
 // STD Dependencies -----------------------------------------------------------
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -20,16 +19,16 @@ use cursive_calendar_view::{CalendarView, EnglishLocale, ViewMode};
 fn main() {
     let mut siv = cursive::default();
 
-    let stored_date: Rc<RefCell<Date<Utc>>> = Rc::new(RefCell::new(Utc.ymd(2017, 12, 31)));
+    let stored_date: Rc<RefCell<Date<Utc>>> = Rc::new(RefCell::new(Utc.ymd(2020, 12, 31)));
     siv.add_layer(
         Dialog::around(TextView::new("-").with_name("text_box"))
             .button("Choose Date...", move |s| {
                 let mut calendar = CalendarView::<Utc, EnglishLocale>::new(*stored_date.borrow());
 
-                calendar.set_highest_view_mode(ViewMode::Year);
+                //calendar.set_highest_view_mode(ViewMode::Year);
                 calendar.set_view_mode(ViewMode::Year);
-                calendar.set_earliest_date(Some(Utc.ymd(2017, 1, 1)));
-                calendar.set_latest_date(Some(Utc.ymd(2017, 12, 31)));
+                calendar.set_earliest_date(Some(Utc.ymd(2020, 1, 1)));
+                calendar.set_latest_date(Some(Utc.ymd(2040, 12, 31)));
                 calendar.set_show_iso_weeks(true);
 
                 let inner_date = stored_date.clone();
