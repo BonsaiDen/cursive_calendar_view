@@ -25,7 +25,7 @@ use crate::cursive::direction::Direction;
 use crate::cursive::event::{Callback, Event, EventResult, Key, MouseButton, MouseEvent};
 use crate::cursive::theme::ColorStyle;
 use crate::cursive::vec::Vec2;
-use crate::cursive::view::View;
+use crate::cursive::view::{CannotFocus, View};
 use crate::cursive::With;
 use crate::cursive::{Cursive, Printer};
 
@@ -661,8 +661,8 @@ impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
         self.size
     }
 
-    fn take_focus(&mut self, _: Direction) -> bool {
-        self.enabled
+    fn take_focus(&mut self, _: Direction) -> Result<EventResult, CannotFocus> {
+        self.enabled.then(EventResult::consumed).ok_or(CannotFocus)
     }
 
     fn on_event(&mut self, event: Event) -> EventResult {
