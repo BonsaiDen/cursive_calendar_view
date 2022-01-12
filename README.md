@@ -18,7 +18,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cursive_calendar_view = "0.7"
+cursive_calendar_view = "0.8"
 ```
 
 and this to your crate root:
