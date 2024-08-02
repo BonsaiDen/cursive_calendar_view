@@ -11,10 +11,10 @@ license = "MIT/Apache-2.0"
 edition = "2018"
 
 [dependencies]
-cursive_core = "0.3"
+cursive_core = "0.4"
 chrono = "0.4"
 
 [dev-dependencies]
 rand = "0.8"
 lazy_static = "1.2"
-cursive = "0.17"
+cursive = "0.21"

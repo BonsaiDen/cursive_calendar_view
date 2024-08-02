@@ -3,8 +3,7 @@
 use cursive;
 
 // STD Dependencies -----------------------------------------------------------
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 // External Dependencies ------------------------------------------------------
 use chrono::prelude::*;
@@ -19,11 +18,12 @@ use cursive_calendar_view::{CalendarView, EnglishLocale, ViewMode};
 fn main() {
     let mut siv = cursive::default();
 
-    let stored_date: Rc<RefCell<Date<Utc>>> = Rc::new(RefCell::new(Utc.ymd(2020, 12, 31)));
+    let stored_date: Arc<Mutex<Date<Utc>>> = Arc::new(Mutex::new(Utc.ymd(2020, 12, 31)));
     siv.add_layer(
         Dialog::around(TextView::new("-").with_name("text_box"))
             .button("Choose Date...", move |s| {
-                let mut calendar = CalendarView::<Utc, EnglishLocale>::new(*stored_date.borrow());
+                let mut calendar =
+                    CalendarView::<Utc, EnglishLocale>::new(*stored_date.lock().unwrap());
 
                 //calendar.set_highest_view_mode(ViewMode::Year);
                 calendar.set_view_mode(ViewMode::Year);
@@ -34,7 +34,7 @@ fn main() {
                 let inner_date = stored_date.clone();
                 calendar.set_on_submit(move |siv: &mut Cursive, date: &Date<Utc>| {
                     siv.call_on_name("text_box", |view: &mut TextView| {
-                        *inner_date.borrow_mut() = *date;
+                        *inner_date.lock().unwrap() = *date;
                         view.set_content(format!("{}", date));
                     });
                     siv.pop_layer();

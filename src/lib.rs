@@ -15,7 +15,7 @@ extern crate cursive_core as cursive;
 // STD Dependencies -----------------------------------------------------------
 use std::cmp;
 use std::marker::PhantomData;
-use std::rc::Rc;
+use std::sync::Arc;
 
 // External Dependencies ------------------------------------------------------
 use chrono::offset::TimeZone;
@@ -53,7 +53,7 @@ pub enum ViewMode {
 /// A callback taking a date as parameter.
 ///
 /// This is an internal type used to improve readability.
-type DateCallback<T> = Rc<dyn Fn(&mut Cursive, &Date<T>)>;
+type DateCallback<T> = Arc<dyn Fn(&mut Cursive, &Date<T>) + Send + Sync>;
 
 /// View for selecting a date, supporting different modes for day, month or
 /// year based selection.
@@ -103,7 +103,10 @@ pub struct CalendarView<T: TimeZone, L: Locale> {
     _localization: PhantomData<L>,
 }
 
-impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
+impl<T: TimeZone + Send + Sync, L: Locale + Send + Sync + 'static> CalendarView<T, L>
+where
+    T::Offset: Send + Sync,
+{
     /// Creates new `CalendarView`.
     pub fn new(today: Date<T>) -> Self {
         Self {
@@ -332,9 +335,9 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     /// Sets a callback to be used when `<Enter>` is pressed to select a date.
     pub fn set_on_submit<F>(&mut self, cb: F)
     where
-        F: Fn(&mut Cursive, &Date<T>) + 'static,
+        F: Fn(&mut Cursive, &Date<T>) + Send + Sync + 'static,
     {
-        self.on_submit = Some(Rc::new(move |s, date| cb(s, date)));
+        self.on_submit = Some(Arc::new(move |s, date| cb(s, date)));
     }
 
     /// Sets a callback to be used when `<Enter>` is pressed to select a date.
@@ -342,7 +345,7 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     /// Chainable variant.
     pub fn on_submit<F>(self, cb: F) -> Self
     where
-        F: Fn(&mut Cursive, &Date<T>) + 'static,
+        F: Fn(&mut Cursive, &Date<T>) + Send + Sync + 'static,
     {
         self.with(|v| v.set_on_submit(cb))
     }
@@ -350,9 +353,9 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     /// Sets a callback to be used when an a new date is visually selected.
     pub fn set_on_select<F>(&mut self, cb: F)
     where
-        F: Fn(&mut Cursive, &Date<T>) + 'static,
+        F: Fn(&mut Cursive, &Date<T>) + Send + Sync + 'static,
     {
-        self.on_select = Some(Rc::new(move |s, date| cb(s, date)));
+        self.on_select = Some(Arc::new(move |s, date| cb(s, date)));
     }
 
     /// Sets a callback to be used when an a new date is visually selected.
@@ -360,13 +363,16 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     /// Chainable variant.
     pub fn on_select<F>(self, cb: F) -> Self
     where
-        F: Fn(&mut Cursive, &Date<T>) + 'static,
+        F: Fn(&mut Cursive, &Date<T>) + Send + Sync + 'static,
     {
         self.with(|v| v.set_on_select(cb))
     }
 }
 
-impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
+impl<T: TimeZone + Send + Sync, L: Locale + Send + Sync + 'static> CalendarView<T, L>
+where
+    T::Offset: Send + Sync,
+{
     fn draw_month(&self, printer: &Printer<'_, '_>) {
         let year = self.view_date.year();
         let month: Month = self.view_date.month0().into();
@@ -643,7 +649,11 @@ impl<T: TimeZone, L: Locale + 'static> CalendarView<T, L> {
     }
 }
 
-impl<T: TimeZone + 'static, L: Locale + 'static> View for CalendarView<T, L> {
+impl<T: TimeZone + Send + Sync + 'static, L: Locale + Send + Sync + 'static> View
+    for CalendarView<T, L>
+where
+    T::Offset: Send + Sync,
+{
     fn draw(&self, printer: &Printer<'_, '_>) {
         match self.view_mode {
             ViewMode::Month => self.draw_month(printer),
